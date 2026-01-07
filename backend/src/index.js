@@ -16,7 +16,7 @@ app.use(
 app.use(express.json());
 
 // Health check API
-app.get("/health", async (req, res) => {
+app.get("/health", async(req, res) => {
   res.json({
     status: "ok",
     service: "remnant-backend",
@@ -84,6 +84,7 @@ app.delete("/api/moments/:id", async (req, res) => {
       message: "Moment deleted successfully",
       moment: result.rows[0],
     });
+    res.json({ message: "Moment deleted successfully", moment: result.rows[0] });
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: "Failed to delete moment" });
