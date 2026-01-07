@@ -1,0 +1,50 @@
+[
+  {
+    "key": "serenity",
+    "label": "SERENITY"
+  },
+  {
+    "key": "melancholy",
+    "label": "MELANCHOLY"
+  },
+  {
+    "key": "yearning",
+    "label": "YEARNING"
+  },
+  {
+    "key": "awe",
+    "label": "AWE"
+  },
+  {
+    "key": "gratitude",
+    "label": "GRATITUDE"
+  },
+  {
+    "key": "stillness",
+    "label": "STILLNESS"
+  },
+  {
+    "key": "solitude",
+    "label": "SOLITUDE"
+  },
+  {
+    "key": "renewal",
+    "label": "RENEWAL"
+  },
+  {
+    "key": "bittersweet",
+    "label": "BITTERSWEET"
+  },
+  {
+    "key": "resonance",
+    "label": "RESONANCE"
+  },
+  {
+    "key": "tension",
+    "label": "TENSION"
+  },
+  {
+    "key": "lucidity",
+    "label": "LUCIDITY"
+  }
+]

@@ -1,0 +1,34 @@
+@import "tailwindcss";
+
+h1 {
+  @apply text-black;
+}
+
+h2 {
+  color: #a8a29e;
+}
+
+.mood-grid {
+  @apply grid grid-cols-4 gap-4 mt-4;
+}
+
+.mood-button {
+  @apply px-5 py-3.5 border text-xs tracking-wider cursor-pointer transition-all duration-200;
+  @apply bg-gray-100 border-gray-200 text-gray-500;
+}
+
+.mood-button:hover {
+  @apply bg-gray-200;
+}
+
+.mood-button.active {
+  @apply bg-black text-white border-black;
+}
+
+.note-section {
+  @apply mt-6;
+}
+
+.note-textarea {
+  @apply w-full mt-2;
+}
