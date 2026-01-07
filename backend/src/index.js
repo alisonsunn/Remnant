@@ -1,8 +1,17 @@
 const express = require("express");
+const cors = require("cors");
 const pool = require("./db");
 
 const app = express();
 const PORT = process.env.PORT || 3001;
+
+// Enable CORS for all routes
+app.use(
+  cors({
+    origin: "http://localhost:3000",
+    credentials: true,
+  })
+);
 
 app.use(express.json());
 
@@ -71,6 +80,10 @@ app.delete("/api/moments/:id", async (req, res) => {
       return res.status(404).json({ error: "Moment not found" });
     }
 
+    res.json({
+      message: "Moment deleted successfully",
+      moment: result.rows[0],
+    });
     res.json({ message: "Moment deleted successfully", moment: result.rows[0] });
   } catch (error) {
     console.error(error);
