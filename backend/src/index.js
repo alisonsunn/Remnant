@@ -3,6 +3,9 @@ require("dotenv").config();
 const express = require("express");
 const cors = require("cors");
 const pool = require("./db");
+const bcrypt = require("bcrypt");
+const jwt = require("jsonwebtoken");
+const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
@@ -18,6 +21,7 @@ app.use(
 );
 
 app.use(express.json());
+app.use(cookieParser());
 
 // AWS S3 configuration
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
@@ -135,6 +139,114 @@ app.delete("/api/moments/:id", async (req, res) => {
     console.error(error);
     res.status(500).json({ error: "Failed to delete moment" });
   }
+});
+
+// generate token
+const generateToken = (userId) => {
+  return jwt.sign({ userId }, process.env.JWT_SECRET, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+};
+
+// signup API
+app.post("/auth/signup", async (req, res) => {
+  const { email, password } = req.body;
+
+  // check if email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+  // check if password is at least 6 characters
+  if (password.length < 6) {
+    return res
+      .status(400)
+      .json({ error: "Password must be at least 6 characters" });
+  }
+
+  try {
+    // hash password
+    const password_hash = await bcrypt.hash(password, 10);
+
+    // insert user into database
+    const result = await pool.query(
+      `INSERT INTO users (email, password_hash)
+       VALUES ($1, $2)
+       RETURNING id, email, created_at`,
+      [email.toLowerCase(), password_hash]
+    );
+
+    const user = result.rows[0];
+
+    // generate token and set it in cookie
+    const token = generateToken(user.id);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    // return user information
+    return res.status(201).json({ user });
+  } catch (err) {
+    // email already exists or invalid
+    return res.status(400).json({
+      error: { error: err.message, code: err.code, detail: err.detail },
+    });
+  }
+});
+
+// login API
+app.post("/auth/login", async (req, res) => {
+  const { email, password } = req.body;
+
+  // check if email and password are provided
+  if (!email || !password) {
+    return res.status(400).json({ error: "Email and password are required" });
+  }
+
+  try {
+    // get user from database
+    const result = await pool.query(
+      `SELECT id, email, password_hash FROM users WHERE email = $1`,
+      [email.toLowerCase()]
+    );
+
+    const user = result.rows[0];
+    if (!user) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // compare password
+    const isPasswordValid = await bcrypt.compare(password, user.password_hash);
+    if (!isPasswordValid) {
+      return res.status(401).json({ error: "Invalid email or password" });
+    }
+
+    // generate token and set it in cookie
+    const token = generateToken(user.id);
+    res.cookie("token", token, {
+      httpOnly: true,
+      sameSite: "lax",
+      secure: process.env.NODE_ENV === "production",
+      maxAge: 7 * 24 * 60 * 60 * 1000,
+    });
+
+    return res.status(200).json({ user: { id: user.id, email: user.email } });
+  } catch (error) {
+    return res.status(400).json({ error: "Invalid email or password" });
+  }
+});
+
+// logout API
+app.post("/auth/logout", (req, res) => {
+  res.clearCookie("token", {
+    httpOnly: true,
+    sameSite: "lax",
+    secure: process.env.NODE_ENV === "production",
+  });
+
+  return res.json({ message: "Logged out" });
 });
 
 app.listen(PORT, () => {
