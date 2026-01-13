@@ -1,4 +1,19 @@
-node_modules
+# dependencies
+node_modules/
+
+# Next.js build/cache
+.next/
+**/.next/
+
+# logs
+*.log
+logs/
+
+# env
 .env
+.env.local
+.env.*.local
+
 .DS_Store
+
 
