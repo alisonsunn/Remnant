@@ -1,4 +1,0 @@
-[00:00:00.720] Server  LOG     ✓ Ready in 494ms
-[00:00:21.480] Server  ERROR   Error: ENOENT: no such file or directory, scandir '/Users/alisonsun/Documents/Remnant/frontend/app'
-[00:00:21.481] Server  ERROR   ⨯ "unhandledRejection:" Error: ENOENT: no such file or directory, scandir '/Users/alisonsun/Documents/Remnant/frontend/app'
-[00:00:21.481] Server  ERROR   ⨯ "unhandledRejection: " Error: ENOENT: no such file or directory, scandir '/Users/alisonsun/Documents/Remnant/frontend/app'
