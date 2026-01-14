@@ -10,6 +10,7 @@ const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
 
 const app = express();
+
 const PORT = process.env.PORT || 3001;
 
 // Enable CORS for all routes
@@ -22,6 +23,26 @@ app.use(
 
 app.use(express.json());
 app.use(cookieParser());
+
+// requireAuth middleware
+const requireAuth = (req, res, next) => {
+  const token = req.cookies?.token;
+  if (!token) {
+    return res.status(401).json({ ok: false, error: "Not logged in" });
+  }
+  try {
+    const payload = jwt.verify(token, process.env.JWT_SECRET);
+    req.userId = { id: payload.userId };
+    return next();
+  } catch (error) {
+    return res.status(401).json({ ok: false, error: "Invalid token" });
+  }
+};
+
+// test auth middleware
+app.get("/auth/me", requireAuth, (req, res) => {
+  return res.json({ ok: true, userId: req.userId });
+});
 
 // AWS S3 configuration
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
@@ -76,8 +97,10 @@ app.get("/health", async (req, res) => {
 });
 
 // Moments post API
-app.post("/api/moments", async (req, res) => {
-  const { user_id, emotion, note, image_key } = req.body;
+app.post("/api/moments", requireAuth, async (req, res) => {
+  const { emotion, note, image_key } = req.body;
+  const user_id = req.userId.id;
+  // console.log("user_id:", user_id);
   try {
     const result = await pool.query(
       `INSERT INTO moments (user_id, emotion, note, image_key)
@@ -93,9 +116,8 @@ app.post("/api/moments", async (req, res) => {
 });
 
 // Moments get API
-app.get("/api/moments", async (req, res) => {
-  const { user_id } = req.query;
-
+app.get("/api/moments", requireAuth, async (req, res) => {
+  const user_id = req.userId.id;
   try {
     const result = await pool.query(
       `SELECT * FROM moments
@@ -103,6 +125,8 @@ app.get("/api/moments", async (req, res) => {
        ORDER BY created_at DESC`,
       [user_id]
     );
+
+    console.log("result:", result.rows);
 
     res.json(result.rows);
   } catch (err) {
@@ -112,19 +136,22 @@ app.get("/api/moments", async (req, res) => {
 });
 
 // Moments delete API
-app.delete("/api/moments/:id", async (req, res) => {
+app.delete("/api/moments/:id", requireAuth, async (req, res) => {
   const momentId = Number(req.params.id);
+  const user_id = req.userId.id;
+  console.log("momentId:", momentId);
 
   if (momentId == null || momentId <= 0) {
     return res.status(400).json({ error: "Invalid moment ID or user ID" });
   }
 
   try {
+    // Verify the moment belongs to the user before deleting
     const result = await pool.query(
-      `DELETE FROM momentsgit
-       WHERE id = $1
+      `DELETE FROM moments
+       WHERE id = $1 AND user_id = $2
        RETURNING *`,
-      [momentId]
+      [momentId, user_id]
     );
 
     if (result.rowCount === 0) {
@@ -232,7 +259,7 @@ app.post("/auth/login", async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000,
     });
 
-    return res.status(200).json({ user: { id: user.id, email: user.email } });
+    return res.status(201).json({ user: { id: user.id, email: user.email } });
   } catch (error) {
     return res.status(400).json({ error: "Invalid email or password" });
   }

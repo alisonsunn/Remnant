@@ -9,7 +9,6 @@ export default function Record() {
   const [note, setNote] = useState<string>("");
   const [photo, setPhoto] = useState<File | null>(null);
   const [image_key, setImageKey] = useState<string | null>(null);
-  const DEV_USER_ID = 1;
 
   async function uploadPhoto() {
     if (!photo) return;
@@ -34,8 +33,8 @@ export default function Record() {
     const res = await fetch("http://localhost:3001/api/moments", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
+      credentials: "include", // Important: include cookies for authentication
       body: JSON.stringify({
-        user_id: DEV_USER_ID,
         emotion: selectedEmotion,
         note: note.trim() ? note.trim() : null,
         image_key: image_key,
@@ -45,6 +44,10 @@ export default function Record() {
     console.log("status:", res.status);
     const data = await res.json();
     console.log("response data:", data);
+
+    if (!res.ok) {
+      console.error("Failed to create moment:", data);
+    }
   }
 
   return (
