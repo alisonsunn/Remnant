@@ -11,10 +11,6 @@ const config: Config = {
         border: "var(--color-border)",
         primary: "var(--color-primary)",
       },
-      letterSpacing: {
-        archive: "0.35em",
-        archiveWide: "0.45em",
-      },
       container: {
         center: true,
         padding: "3rem",
