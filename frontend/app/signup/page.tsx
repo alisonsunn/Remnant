@@ -2,13 +2,13 @@
 import { useState } from "react";
 import AuthFormShell from "@/components/AuthFormShell";
 
-const apiBase = process.env.NEXT_PUBLIC_API_BASE;
-
-if (!apiBase) {
-  throw new Error("Missing NEXT_PUBLIC_API_BASE");
-}
-
 async function handleSignup(email: string, password: string) {
+  const apiBase = process.env.NEXT_PUBLIC_API_BASE;
+
+  if (!apiBase) {
+    return { ok: false, error: "API base URL is not configured" };
+  }
+
   try {
     const res = await fetch(`${apiBase}/auth/signup`, {
       method: "POST",
