@@ -7,6 +7,7 @@ const config: Config = {
       colors: {
         background: "var(--color-bg)",
         foreground: "var(--color-fg)",
+        background2: "var(--color-background2)",
         muted: "var(--color-muted)",
         border: "var(--color-border)",
         primary: "var(--color-primary)",
