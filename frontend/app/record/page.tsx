@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import Emotions from "../data/emotions.json";
+import "../globals.css";
 import "./record.css";
 
 export default function Record() {
@@ -51,9 +52,9 @@ export default function Record() {
   }
 
   return (
-    <main className="ml-30 mr-30 flex flex-col gap-6">
+    <main className="ml-80 mr-80 flex flex-col gap-2">
       <h1>Witnessing the Now</h1>
-      <h2>Current Resonance</h2>
+      <label>Current Resonance</label>
 
       {/*  Select emotion */}
       <div className="mood-grid">
@@ -72,31 +73,35 @@ export default function Record() {
 
       {/* Note section - optional */}
       <div className="note-section">
-        <h2>Ephemeral Note</h2>
+        <label>Ephemeral Note</label>
         <textarea
           value={note}
           onChange={(e) => setNote(e.target.value)}
-          placeholder="Write a short note...(optional)"
+          placeholder="Write your thoughts..."
           rows={4}
           className="note-textarea"
         />
       </div>
 
       {/* Fragment section - optional */}
-      <h2>Visual Fragments</h2>
-      <div style={{ marginTop: 24 }}>
-        <p style={{ marginBottom: 8 }}>Photo (optional)</p>
+      <label>Visual Fragments</label>
+      <div className="fragment-upload-area">
         <input
           type="file"
           accept="image/*"
           onChange={(e) => setPhoto(e.target.files?.[0] ?? null)}
+          className="fragment-input"
+          id="fragment-input"
         />
-        <div style={{ marginTop: 8, opacity: 0.7 }}></div>
+        <label htmlFor="fragment-input" className="fragment-label">
+          {photo ? photo.name : "ATTACH FRAGMENT"}
+        </label>
       </div>
-      <button onClick={uploadPhoto} disabled={!photo}>
-        Upload photo
-      </button>
-
+      {photo && (
+        <button onClick={uploadPhoto} className="upload-button">
+          Upload photo
+        </button>
+      )}
       <button onClick={handleMomentSubmit}>Keep as moment</button>
     </main>
   );
