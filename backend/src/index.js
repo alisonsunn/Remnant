@@ -62,25 +62,31 @@ const s3 = new S3Client({
 const BUCKET = process.env.MINIO_BUCKET || "remnant";
 
 // Upload image to S3
-app.post("/api/upload", upload.single("file"), async (req, res) => {
+app.post("/api/upload", upload.array("files", 4), async (req, res) => {
   try {
-    if (!req.file) {
-      return res.status(400).json({ error: "No file uploaded" });
+    // No files uploaded
+    if (!req.files || req.files.length === 0) {
+      return res.status(201).json({ image_keys: [] });
     }
 
-    const ext = req.file.originalname.split(".").pop() || "jpg";
-    const key = `moments/${crypto.randomUUID()}.${ext}`;
+    const uploadedKeys = [];
 
-    await s3.send(
-      new PutObjectCommand({
-        Bucket: BUCKET,
-        Key: key,
-        Body: req.file.buffer,
-        ContentType: req.file.mimetype,
-      })
-    );
+    for (const file of req.files) {
+      const ext = file.originalname.split(".").pop() || "jpg";
+      const key = `moments/${crypto.randomUUID()}.${ext}`;
 
-    return res.status(201).json({ image_key: key });
+      await s3.send(
+        new PutObjectCommand({
+          Bucket: BUCKET,
+          Key: key,
+          Body: file.buffer,
+          ContentType: file.mimetype,
+        })
+      );
+
+      uploadedKeys.push(key);
+    }
+    return res.status(201).json({ image_keys: uploadedKeys });
   } catch (error) {
     console.error(error);
     return res.status(500).json({ error: "Upload failed" });
@@ -98,15 +104,15 @@ app.get("/health", async (req, res) => {
 
 // Moments post API
 app.post("/api/moments", requireAuth, async (req, res) => {
-  const { emotion, note, image_key } = req.body;
+  const { emotion, note, image_keys } = req.body;
   const user_id = req.userId.id;
   // console.log("user_id:", user_id);
   try {
     const result = await pool.query(
-      `INSERT INTO moments (user_id, emotion, note, image_key)
+      `INSERT INTO moments (user_id, emotion, note, image_keys)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [user_id, emotion, note, image_key]
+      [user_id, emotion, note, image_keys ?? []]
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
