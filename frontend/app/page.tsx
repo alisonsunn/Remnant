@@ -1,10 +1,9 @@
-import Image from "next/image";
+import Login from "./login/page";
 
 export default function Home() {
   return (
     <main>
-      <h1>Welcome to Remnant Frontend</h1>
-      <p>This is the main page of the Remnant application.</p>
+      <Login />
     </main>
   );
 }
