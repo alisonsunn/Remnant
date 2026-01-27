@@ -40,7 +40,7 @@ export default function AuthFormShell({
     <main className="min-h-screen flex">
       <div className="container w-full max-w-md mx-auto">
         <h1 className="text-center">{title}</h1>
-        <h2 className="text-center">{subtitle}</h2>
+        <h2 className="text-center mb-10">{subtitle}</h2>
         <form className="space-y-8" onSubmit={handleSubmit}>
           <div className="field-group">
             <label>IDENTITY</label>

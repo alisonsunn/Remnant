@@ -35,7 +35,22 @@ h2 {
   text-transform: uppercase;
   letter-spacing: 0.3rem;
   color: var(--color-h2);
-  margin-bottom: 3rem;
+}
+
+h3 {
+  font-family: var(--font-crimson-pro);
+  font-size: 1.5rem;
+  font-style: italic;
+  font-weight: 300;
+  color: var(--color-h1);
+  line-height: 2.5rem;
+}
+
+h4 {
+  font-family: var(--font-inter);
+  font-size: 0.625rem;
+  font-weight: 400;
+  color: var(--color-h2);
 }
 
 label {
@@ -79,4 +94,18 @@ button {
   font-family: var(--font-inter);
   font-weight: 400;
   cursor: pointer;
+}
+
+/* Grayscale hover effect for images */
+.grayscale {
+  filter: grayscale(100%);
+  transition: filter 200ms ease;
+  padding-bottom: 0.75rem;
+  border-bottom: 0.1rem solid transparent;
+}
+
+.grayscale:hover {
+  filter: grayscale(0%);
+  cursor: pointer;
+  border-bottom-color: var(--color-muted);
 }

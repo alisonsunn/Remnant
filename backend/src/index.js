@@ -8,6 +8,8 @@ const jwt = require("jsonwebtoken");
 const cookieParser = require("cookie-parser");
 const multer = require("multer");
 const upload = multer({ storage: multer.memoryStorage() });
+const { getSignedUrl } = require("@aws-sdk/s3-request-presigner");
+const { GetObjectCommand } = require("@aws-sdk/client-s3");
 
 const app = express();
 
@@ -18,7 +20,7 @@ app.use(
   cors({
     origin: "http://localhost:3000",
     credentials: true,
-  })
+  }),
 );
 
 app.use(express.json());
@@ -81,7 +83,7 @@ app.post("/api/upload", upload.array("files", 4), async (req, res) => {
           Key: key,
           Body: file.buffer,
           ContentType: file.mimetype,
-        })
+        }),
       );
 
       uploadedKeys.push(key);
@@ -112,7 +114,7 @@ app.post("/api/moments", requireAuth, async (req, res) => {
       `INSERT INTO moments (user_id, emotion, note, image_keys)
        VALUES ($1, $2, $3, $4)
        RETURNING *`,
-      [user_id, emotion, note, image_keys ?? []]
+      [user_id, emotion, note, image_keys ?? []],
     );
     res.status(201).json(result.rows[0]);
   } catch (error) {
@@ -121,20 +123,56 @@ app.post("/api/moments", requireAuth, async (req, res) => {
   }
 });
 
+// generate s3 image url
+async function generateS3ImageUrl(key) {
+  const command = new GetObjectCommand({
+    Bucket: BUCKET,
+    Key: key,
+  });
+  // expires in 1 hour
+  const signedUrl = await getSignedUrl(s3, command, {
+    expiresIn: 60 * 60,
+  });
+
+  return signedUrl;
+}
+
 // Moments get API
 app.get("/api/moments", requireAuth, async (req, res) => {
   const user_id = req.userId.id;
+
+  // return the total number of moments for the user
+  const total_moments = await pool.query(
+    `SELECT COUNT(*)::int AS total
+    FROM moments
+    WHERE user_id = $1`,
+    [user_id],
+  );
+
+  const total = total_moments.rows[0].total;
+
+  // return all moments for the user, sorted by created_at descending
   try {
     const result = await pool.query(
       `SELECT * FROM moments
        WHERE user_id = $1
        ORDER BY created_at DESC`,
-      [user_id]
+      [user_id],
     );
 
     console.log("result:", result.rows);
 
-    res.json(result.rows);
+    const moments = await Promise.all(
+      result.rows.map(async (moment) => {
+        const imageUrl =
+          moment.image_keys.length > 0
+            ? await generateS3ImageUrl(moment.image_keys[0])
+            : null;
+        return { ...moment, image_url: imageUrl };
+      }),
+    );
+
+    res.json({ moments, total });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: "Failed to fetch moments" });
@@ -157,7 +195,7 @@ app.delete("/api/moments/:id", requireAuth, async (req, res) => {
       `DELETE FROM moments
        WHERE id = $1 AND user_id = $2
        RETURNING *`,
-      [momentId, user_id]
+      [momentId, user_id],
     );
 
     if (result.rowCount === 0) {
@@ -205,7 +243,7 @@ app.post("/auth/signup", async (req, res) => {
       `INSERT INTO users (email, password_hash)
        VALUES ($1, $2)
        RETURNING id, email, created_at`,
-      [email.toLowerCase(), password_hash]
+      [email.toLowerCase(), password_hash],
     );
 
     const user = result.rows[0];
@@ -242,7 +280,7 @@ app.post("/auth/login", async (req, res) => {
     // get user from database
     const result = await pool.query(
       `SELECT id, email, password_hash FROM users WHERE email = $1`,
-      [email.toLowerCase()]
+      [email.toLowerCase()],
     );
 
     const user = result.rows[0];
