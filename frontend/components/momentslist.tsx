@@ -1,3 +1,5 @@
+import Link from "next/link";
+
 interface Moment {
   id: number;
   image_url: string | null;
@@ -25,29 +27,35 @@ export default async function MomentsList({
       {total > 0 &&
         moments.map((moment: Moment) => {
           return (
-            <section
+            <Link
               key={moment.id}
-              className="flex flex-row justify-between items-center mb-10 grayscale"
+              href={`/moments/${moment.id}`}
+              className="block"
             >
-              <div className="flex flex-row gap-8">
-                <div>
-                  {moment.image_url && (
-                    <img
-                      src={moment.image_url}
-                      alt={moment.emotion}
-                      className="w-40 h-40 object-cover"
-                    />
-                  )}
+              <section
+                key={moment.id}
+                className="flex flex-row justify-between items-center mb-10 grayscale"
+              >
+                <div className="flex flex-row gap-8">
+                  <div>
+                    {moment.image_url && (
+                      <img
+                        src={moment.image_url}
+                        alt={moment.emotion}
+                        className="w-40 h-40 object-cover"
+                      />
+                    )}
+                  </div>
+
+                  <div className="flex flex-col justify-center gap-2">
+                    <h3>{moment.emotion}</h3>
+                    {moment.note && <p>{moment.note}</p>}
+                  </div>
                 </div>
 
-                <div className="flex flex-col justify-center gap-2">
-                  <h3>{moment.emotion}</h3>
-                  {moment.note && <p>{moment.note}</p>}
-                </div>
-              </div>
-
-              <h4>{formatDate(moment.created_at)}</h4>
-            </section>
+                <h4>{formatDate(moment.created_at)}</h4>
+              </section>
+            </Link>
           );
         })}
       {total === undefined && <h2>Please record your first moment</h2>}
