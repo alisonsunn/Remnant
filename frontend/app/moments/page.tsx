@@ -19,7 +19,7 @@ export default async function Moments() {
         <h1>Present Moments</h1>
         <h2 className="mb-0">{total} Fragments</h2>
       </section>
-      <MomentsList moments={moments} />
+      <MomentsList moments={moments} total={total} />
     </main>
   );
 }
