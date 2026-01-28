@@ -201,7 +201,7 @@ app.get("/api/moments/:id", requireAuth, async (req, res) => {
           )
         : null;
 
-    console.log("image_urls:", image_urls);
+    // console.log("image_urls:", image_urls);
 
     if (moment.rowCount === 0) {
       return res.status(404).json({ error: "Moment not found" });
