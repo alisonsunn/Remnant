@@ -179,6 +179,43 @@ app.get("/api/moments", requireAuth, async (req, res) => {
   }
 });
 
+// Moment get API - show all the pictures
+app.get("/api/moments/:id", requireAuth, async (req, res) => {
+  const momentId = Number(req.params.id);
+  const user_id = req.userId.id;
+  try {
+    const moment = await pool.query(
+      `SELECT * FROM moments
+       WHERE id = $1 AND user_id = $2`,
+      [momentId, user_id],
+    );
+
+    console.log("moment:", moment.rows[0]);
+
+    const image_urls =
+      moment.rows[0].image_keys.length > 0
+        ? await Promise.all(
+            moment.rows[0].image_keys.map(
+              async (image_key) => await generateS3ImageUrl(image_key),
+            ),
+          )
+        : null;
+
+    console.log("image_urls:", image_urls);
+
+    if (moment.rowCount === 0) {
+      return res.status(404).json({ error: "Moment not found" });
+    }
+
+    res.json({
+      moment: { ...moment.rows[0], image_urls },
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to fetch moment" });
+  }
+});
+
 // Moments delete API
 app.delete("/api/moments/:id", requireAuth, async (req, res) => {
   const momentId = Number(req.params.id);
