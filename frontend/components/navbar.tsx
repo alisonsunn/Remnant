@@ -10,7 +10,7 @@ export default function Navbar() {
       </Link>
 
       <div className="flex gap-10 text-sm tracking-[0.1em] ">
-        <Link href="/">Home</Link>
+        <Link href="/home">Home</Link>
         <Link href="/record">Record</Link>
         <Link href="/moments">Moments</Link>
         <Link href="/signup">Vault</Link>
