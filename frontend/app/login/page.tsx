@@ -1,8 +1,9 @@
 "use client";
 
 import AuthFormShell from "@/components/AuthFormShell";
+import { useRouter } from "next/navigation";
 
-async function handleLogin(email: string, password: string) {
+async function handleLogin(router: any, email: string, password: string) {
   const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
 
   if (!API_BASE) {
@@ -28,6 +29,8 @@ async function handleLogin(email: string, password: string) {
       return { ok: false, message: msg };
     }
 
+    router.replace("/record");
+
     return { ok: true, user: data.user };
   } catch (error: any) {
     console.error("login failed:", error);
@@ -36,6 +39,7 @@ async function handleLogin(email: string, password: string) {
 }
 
 export default function Login() {
+  const router = useRouter();
   return (
     <AuthFormShell
       title="Return to the Archive"
@@ -44,7 +48,7 @@ export default function Login() {
       footerText="NEED TO BEGIN A NEW LEGACY? "
       footerLinkText="SIGN UP"
       footerHref="/signup"
-      submitUser={({ email, password }) => handleLogin(email, password)}
+      submitUser={({ email, password }) => handleLogin(router, email, password)}
     />
   );
 }
