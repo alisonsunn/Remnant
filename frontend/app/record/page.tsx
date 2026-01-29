@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 import Emotions from "../data/emotions.json";
 import Masonry from "react-masonry-css";
 import "../globals.css";
@@ -18,6 +19,7 @@ function makePhotoId(): string {
 }
 
 export default function Record() {
+  const router = useRouter();
   const [selectedEmotion, setSelectedEmotion] = useState<string>("");
   const [note, setNote] = useState<string>("");
   const [photos, setPhotos] = useState<PhotoItem[]>([]);
@@ -76,7 +78,12 @@ export default function Record() {
     photos.forEach((photo) => {
       URL.revokeObjectURL(photo.previewUrl);
     });
+    router.replace("/moments");
     setPhotos([]);
+  }
+
+  function handleDiscardEntry() {
+    router.replace("/home");
   }
 
   return (
@@ -198,7 +205,9 @@ export default function Record() {
           SEAL INTO VAULT
         </button>
       </div>
-      <p className="discard-entry">DISCARD ENTRY</p>
+      <button onClick={handleDiscardEntry}>
+        <p className="discard-entry">DISCARD ENTRY</p>
+      </button>
     </main>
   );
 }
