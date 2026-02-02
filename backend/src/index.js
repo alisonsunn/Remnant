@@ -352,6 +352,7 @@ app.post("/auth/logout", (req, res) => {
     httpOnly: true,
     sameSite: "lax",
     secure: process.env.NODE_ENV === "production",
+    path: "/",
   });
 
   return res.json({ message: "Logged out" });
