@@ -137,6 +137,27 @@ async function generateS3ImageUrl(key) {
   return signedUrl;
 }
 
+// Moments patch API
+app.patch("/api/moments/:id", requireAuth, async (req, res) => {
+  const { emotion, note, image_keys } = req.body;
+  const momentId = Number(req.params.id);
+  const user_id = req.userId.id;
+
+  try {
+    const result = await pool.query(
+      `UPDATE moments
+       SET emotion = $1, note = $2, image_keys = $3
+       WHERE id = $4 AND user_id = $5
+       RETURNING *`,
+      [emotion, note, image_keys ?? [], momentId, user_id],
+    );
+    res.status(200).json(result.rows[0]);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: "Failed to update moment" });
+  }
+});
+
 // Moments get API
 app.get("/api/moments", requireAuth, async (req, res) => {
   const user_id = req.userId.id;
