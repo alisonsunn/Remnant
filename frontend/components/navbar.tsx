@@ -11,10 +11,13 @@ export default function Navbar() {
 
   async function handleLogout(router: any) {
     try {
-      const res = await fetch("http://localhost:3001/auth/logout", {
-        method: "POST",
-        credentials: "include",
-      });
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_BASE}/auth/logout`,
+        {
+          method: "POST",
+          credentials: "include",
+        },
+      );
       if (!res.ok) {
         setIsOpen(true);
         setMessage(res.statusText);
