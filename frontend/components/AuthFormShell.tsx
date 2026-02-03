@@ -48,8 +48,17 @@ export default function AuthFormShell({
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               type="email"
+              required={true}
               name="email"
               placeholder="Email address"
+              onInvalid={(e) => {
+                e.currentTarget.setCustomValidity(
+                  "Email address must contain @",
+                );
+              }}
+              onInput={(e) => {
+                e.currentTarget.setCustomValidity("");
+              }}
             />
           </div>
           <div className="field-group">

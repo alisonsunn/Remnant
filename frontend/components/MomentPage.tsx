@@ -27,6 +27,7 @@ type MomentPageProps = {
   mode: "record" | "edit";
   moment?: Moment;
   onSubmit: (payload: Payload) => Promise<void>;
+  onDiscard?: () => void;
 };
 
 function makePhotoId(): string {
@@ -35,7 +36,7 @@ function makePhotoId(): string {
 }
 
 export default function MomentPage(props: MomentPageProps) {
-  const { mode, moment, onSubmit } = props;
+  const { mode, moment, onSubmit, onDiscard } = props;
   const [selectedEmotion, setSelectedEmotion] = useState<string>(
     moment?.emotion ?? "",
   );
@@ -238,7 +239,11 @@ export default function MomentPage(props: MomentPageProps) {
         </button>
       </div>
       <button>
-        <p className="discard-entry">DISCARD ENTRY</p>
+        {mode === "record" ? (
+          <p className="discard-entry" onClick={onDiscard}>
+            DISCARD ENTRY
+          </p>
+        ) : null}
       </button>
     </main>
   );
