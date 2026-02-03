@@ -74,6 +74,10 @@ export default function MomentDetailClient({
     }
   }
 
+  function handleModify() {
+    router.replace(`/moments/${id}/edit`);
+  }
+
   return (
     <section className="flex flex-col items-center justify-center pl-15 pr-15">
       <div className="flex justify-between gap-85 mb-5">
@@ -81,7 +85,9 @@ export default function MomentDetailClient({
           <h2 className="normal borderline">Back</h2>
         </Link>
         <div className="flex gap-4">
-          <h2 className="normal borderline">Modify</h2>
+          <h2 className="normal borderline" onClick={handleModify}>
+            Modify
+          </h2>
           <h2 onClick={handleDiscard} className="normal delete cursor-pointer">
             Discard
           </h2>
