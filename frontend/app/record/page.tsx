@@ -1,6 +1,13 @@
 "use client";
+
 import MomentPage from "../../components/MomentPage";
 import "./record.css";
+
+type Payload = {
+  emotion?: string;
+  note?: string | null;
+  image_keys?: string[];
+};
 
 export default function RecordPage() {
   async function onSubmit(payload: Payload) {
