@@ -2,6 +2,7 @@
 
 import MomentPage from "../../components/MomentPage";
 import "./record.css";
+import { useRouter } from "next/navigation";
 
 type Payload = {
   emotion?: string;
@@ -10,6 +11,12 @@ type Payload = {
 };
 
 export default function RecordPage() {
+  const router = useRouter();
+
+  function onDiscard() {
+    router.replace("/home");
+  }
+
   async function onSubmit(payload: Payload) {
     const res = await fetch("http://localhost:3001/api/moments", {
       method: "POST",
@@ -31,5 +38,5 @@ export default function RecordPage() {
       return;
     }
   }
-  return <MomentPage mode="record" onSubmit={onSubmit} />;
+  return <MomentPage mode="record" onSubmit={onSubmit} onDiscard={onDiscard} />;
 }
