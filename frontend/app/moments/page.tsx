@@ -5,7 +5,7 @@ export default async function Moments() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  const res = await fetch("http://localhost:3001/api/moments", {
+  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/moments`, {
     headers: {
       Cookie: `token=${token}`,
     },

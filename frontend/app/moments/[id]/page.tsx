@@ -8,12 +8,15 @@ export default async function MomentDetailPage({
 }) {
   const { id } = await params;
 
-  const res = await fetch(`http://localhost:3001/api/moments/${id}`, {
-    headers: {
-      Cookie: `token=${(await cookies()).get("token")?.value ?? ""}`,
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE}/api/moments/${id}`,
+    {
+      headers: {
+        Cookie: `token=${(await cookies()).get("token")?.value ?? ""}`,
+      },
+      cache: "no-store",
     },
-    cache: "no-store",
-  });
+  );
 
   if (!res.ok) {
     return (

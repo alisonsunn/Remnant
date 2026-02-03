@@ -26,8 +26,7 @@ export default function EditMomentClient({ id, moment }: Props) {
 
   async function onSubmit(payload: Payload) {
     try {
-      const apiBase =
-        process.env.NEXT_PUBLIC_API_BASE ?? "http://localhost:3001";
+      const apiBase = process.env.NEXT_PUBLIC_API_BASE;
 
       const res = await fetch(`${apiBase}/api/moments/${id}`, {
         method: "PATCH",
