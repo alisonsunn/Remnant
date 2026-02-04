@@ -14,7 +14,11 @@ function toErrorMessage(data: unknown, fallback: string): string {
   if (Array.isArray(d.detail))
     return d.detail
       .map((x: unknown) =>
-        typeof x === "string" ? x : (x as { msg?: string; message?: string })?.msg ?? (x as { message?: string })?.message ?? String(x),
+        typeof x === "string"
+          ? x
+          : ((x as { msg?: string; message?: string })?.msg ??
+            (x as { message?: string })?.message ??
+            String(x)),
       )
       .join(", ");
   return fallback;
@@ -26,14 +30,11 @@ export default function Login() {
   const [message, setMessage] = useState("");
 
   async function handleLogin(router: any, email: string, password: string) {
-    const API_BASE = process.env.NEXT_PUBLIC_API_BASE;
-
-    if (!API_BASE) {
-      return { ok: false, error: "API base URL is not configured" };
-    }
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "");
+    const url = apiBase ? `${apiBase}/auth/login` : "/auth/login";
 
     try {
-      const res = await fetch(`${API_BASE}/auth/login`, {
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",
@@ -74,11 +75,7 @@ export default function Login() {
           handleLogin(router, email, password)
         }
       />
-      <StatusModal
-        isOpen={isOpen}
-        setIsOpen={setIsOpen}
-        message={message}
-      />
+      <StatusModal isOpen={isOpen} setIsOpen={setIsOpen} message={message} />
     </>
   );
 }

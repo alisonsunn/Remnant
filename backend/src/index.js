@@ -1,4 +1,28 @@
-require("dotenv").config();
+const fs = require("fs");
+const path = require("path");
+const dotenv = require("dotenv");
+
+function loadEnv() {
+  const isProd = process.env.NODE_ENV === "production";
+  const candidates = isProd
+    ? [
+        path.resolve(__dirname, "../../.env.prod"),
+        path.resolve(__dirname, "../../.env.local"),
+      ]
+    : [
+        path.resolve(__dirname, "../../.env.dev"),
+        path.resolve(__dirname, "../../.env.local"),
+        path.resolve(__dirname, "../../.env"),
+      ];
+
+  candidates.forEach((envPath) => {
+    if (fs.existsSync(envPath)) {
+      dotenv.config({ path: envPath, override: false });
+    }
+  });
+}
+
+loadEnv();
 
 const express = require("express");
 const cors = require("cors");
@@ -13,7 +37,7 @@ const { GetObjectCommand } = require("@aws-sdk/client-s3");
 
 const app = express();
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.BACKEND_PORT || 3001;
 
 // Enable CORS for all routes
 app.use(
@@ -49,19 +73,32 @@ app.get("/auth/me", requireAuth, (req, res) => {
 // AWS S3 configuration
 const { S3Client, PutObjectCommand } = require("@aws-sdk/client-s3");
 const crypto = require("crypto");
-const { CLIENT_RENEG_LIMIT } = require("tls");
+
+const s3EndpointInternal = process.env.S3_ENDPOINT || "http://minio:9000";
+const s3EndpointPublic = process.env.S3_PUBLIC_ENDPOINT || s3EndpointInternal;
+const s3ForcePathStyle = process.env.S3_FORCE_PATH_STYLE === "true";
 
 const s3 = new S3Client({
-  region: "us-east-1",
-  endpoint: "http://localhost:9000",
+  region: process.env.AWS_REGION || "us-east-1",
+  endpoint: s3EndpointInternal,
   credentials: {
     accessKeyId: process.env.MINIO_ACCESS_KEY,
     secretAccessKey: process.env.MINIO_SECRET_KEY,
   },
-  forcePathStyle: true,
+  forcePathStyle: s3ForcePathStyle,
 });
 
-const BUCKET = process.env.MINIO_BUCKET || "remnant";
+const s3Public = new S3Client({
+  region: process.env.AWS_REGION || "us-east-1",
+  endpoint: s3EndpointPublic,
+  credentials: {
+    accessKeyId: process.env.MINIO_ACCESS_KEY,
+    secretAccessKey: process.env.MINIO_SECRET_KEY,
+  },
+  forcePathStyle: s3ForcePathStyle,
+});
+
+const BUCKET = process.env.S3_BUCKET || "remnant";
 
 // Upload image to S3
 app.post("/api/upload", upload.array("files", 4), async (req, res) => {
@@ -130,7 +167,7 @@ async function generateS3ImageUrl(key) {
     Key: key,
   });
   // expires in 1 hour
-  const signedUrl = await getSignedUrl(s3, command, {
+  const signedUrl = await getSignedUrl(s3Public, command, {
     expiresIn: 60 * 60,
   });
 
