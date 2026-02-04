@@ -13,6 +13,8 @@ logs/
 .env
 .env.local
 .env.*.local
+.env.dev
+.env.prod
 !.env.example
 
 .DS_Store
