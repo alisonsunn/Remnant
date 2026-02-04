@@ -26,9 +26,7 @@ export default function EditMomentClient({ id, moment }: Props) {
 
   async function onSubmit(payload: Payload) {
     try {
-      const apiBase = process.env.NEXT_PUBLIC_API_BASE;
-
-      const res = await fetch(`${apiBase}/api/moments/${id}`, {
+      const res = await fetch(`/api/moments/${id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

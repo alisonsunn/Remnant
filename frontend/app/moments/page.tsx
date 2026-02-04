@@ -1,11 +1,12 @@
 import MomentsList from "../../components/momentslist";
 import { cookies } from "next/headers";
+import { buildApiUrl } from "../request-base";
 
 export default async function Moments() {
   const cookieStore = await cookies();
   const token = cookieStore.get("token")?.value;
 
-  const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/moments`, {
+  const res = await fetch(await buildApiUrl("/api/moments"), {
     headers: {
       Cookie: `token=${token}`,
     },

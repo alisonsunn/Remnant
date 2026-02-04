@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import EditMomentClient from "./EditMomentClient";
+import { buildApiUrl } from "../../../request-base";
 
 type Moment = {
   id: number;
@@ -15,15 +16,12 @@ export default async function EditMomentPage({
 }) {
   const { id } = await params;
 
-  const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/api/moments/${id}`,
-    {
-      headers: {
-        Cookie: `token=${(await cookies()).get("token")?.value ?? ""}`,
-      },
-      cache: "no-store",
+  const res = await fetch(await buildApiUrl(`/api/moments/${id}`), {
+    headers: {
+      Cookie: `token=${(await cookies()).get("token")?.value ?? ""}`,
     },
-  );
+    cache: "no-store",
+  });
 
   if (!res.ok) {
     return (

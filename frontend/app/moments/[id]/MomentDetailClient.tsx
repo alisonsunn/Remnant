@@ -51,13 +51,10 @@ export default function MomentDetailClient({
     if (!ok) return;
 
     try {
-      const res = await fetch(
-        `${process.env.NEXT_PUBLIC_API_BASE}/api/moments/${id}`,
-        {
-          method: "DELETE",
-          credentials: "include",
-        },
-      );
+      const res = await fetch(`/api/moments/${id}`, {
+        method: "DELETE",
+        credentials: "include",
+      });
 
       if (!res.ok) {
         const error = await res.json().catch(() => ({}));

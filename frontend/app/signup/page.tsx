@@ -7,15 +7,13 @@ import { useRouter } from "next/navigation";
 export default function Signup() {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
-  const apiBase = process.env.NEXT_PUBLIC_API_BASE;
   const router = useRouter();
   async function handleSignup(email: string, password: string) {
-    if (!apiBase) {
-      return { ok: false, error: "API base URL is not configured" };
-    }
+    const apiBase = process.env.NEXT_PUBLIC_API_BASE?.replace(/\/$/, "");
+    const url = apiBase ? `${apiBase}/auth/signup` : "/auth/signup";
 
     try {
-      const res = await fetch(`${apiBase}/auth/signup`, {
+      const res = await fetch(url, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         credentials: "include",

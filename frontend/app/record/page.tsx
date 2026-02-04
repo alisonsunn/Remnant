@@ -18,7 +18,7 @@ export default function RecordPage() {
   }
 
   async function onSubmit(payload: Payload) {
-    const res = await fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/moments`, {
+    const res = await fetch(`/api/moments`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       credentials: "include", // Important: include cookies for authentication
