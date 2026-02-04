@@ -69,7 +69,7 @@ services:
     env_file:
       - ./.env.dev
     environment:
-      API_BASE_INTERNAL: http://backend:3001
+      API_INTERNAL_BASE: http://backend:3001
     ports:
       - "3000:3000"
     depends_on:

@@ -3,11 +3,17 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 function loadEnv() {
-  const candidates = [
-    path.resolve(__dirname, "../../.env.local"),
-    path.resolve(__dirname, "../../.env.dev"),
-    path.resolve(__dirname, "../../.env"),
-  ];
+  const isProd = process.env.NODE_ENV === "production";
+  const candidates = isProd
+    ? [
+        path.resolve(__dirname, "../../.env.prod"),
+        path.resolve(__dirname, "../../.env.local"),
+      ]
+    : [
+        path.resolve(__dirname, "../../.env.dev"),
+        path.resolve(__dirname, "../../.env.local"),
+        path.resolve(__dirname, "../../.env"),
+      ];
 
   candidates.forEach((envPath) => {
     if (fs.existsSync(envPath)) {
