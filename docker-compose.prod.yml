@@ -1,9 +1,23 @@
 services:
+  postgres:
+    image: postgres:15
+    container_name: remnant-postgres-prod
+    restart: unless-stopped
+    env_file:
+      - ./.env.prod
+    environment:
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - POSTGRES_DB=${POSTGRES_DB}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
     container_name: remnant-backend-prod
+    restart: unless-stopped
     env_file:
       - ./.env.prod
     environment:
@@ -11,6 +25,8 @@ services:
       - PORT=3001
     expose:
       - "3001"
+    depends_on:
+      - postgres
 
   frontend:
     build:
@@ -19,6 +35,7 @@ services:
       args:
         API_INTERNAL_BASE: http://backend:3001
     container_name: remnant-frontend-prod
+    restart: unless-stopped
     environment:
       - NODE_ENV=production
       - API_INTERNAL_BASE=http://backend:3001
@@ -30,6 +47,7 @@ services:
   nginx:
     image: nginx:1.27-alpine
     container_name: remnant-nginx-prod
+    restart: unless-stopped
     ports:
       - "80:80"
     volumes:
@@ -37,3 +55,6 @@ services:
     depends_on:
       - frontend
       - backend
+
+volumes:
+  pgdata:
