@@ -3,17 +3,11 @@ const path = require("path");
 const dotenv = require("dotenv");
 
 function loadEnv() {
-  const isProd = process.env.NODE_ENV === "production";
-  const candidates = isProd
-    ? [
-        path.resolve(__dirname, "../../.env.prod"),
-        path.resolve(__dirname, "../../.env.local"),
-      ]
-    : [
-        path.resolve(__dirname, "../../.env.dev"),
-        path.resolve(__dirname, "../../.env.local"),
-        path.resolve(__dirname, "../../.env"),
-      ];
+  const candidates = [
+    path.resolve(__dirname, "../../.env.local"),
+    path.resolve(__dirname, "../../.env.dev"),
+    path.resolve(__dirname, "../../.env"),
+  ];
 
   candidates.forEach((envPath) => {
     if (fs.existsSync(envPath)) {
@@ -40,9 +34,13 @@ const app = express();
 const PORT = process.env.BACKEND_PORT || 3001;
 
 // Enable CORS for all routes
+const corsOrigins = (process.env.CORS_ORIGINS || "http://localhost:3000")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter(Boolean);
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: corsOrigins,
     credentials: true,
   }),
 );
